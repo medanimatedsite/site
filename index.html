@@ -492,10 +492,13 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
-const NUM = 120;
-const CONNECT_DIST = 130;
-const VISIBLE_RADIUS = 300;
-const PARTICLE_RADIUS = 2;
+const isMobile = W < 768 || 'ontouchstart' in window;
+const NUM = isMobile ? 50 : 120;
+const CONNECT_DIST = isMobile ? 90 : 130;
+const VISIBLE_RADIUS = isMobile ? Infinity : 300;
+const PARTICLE_RADIUS = isMobile ? 1.8 : 2;
+const LINE_ALPHA = isMobile ? 0.15 : 0.35;
+
 let mouse = { x: -9999, y: -9999 };
 const vis = new Float64Array(NUM);
 
@@ -543,13 +546,24 @@ document.addEventListener('mouseleave', () => {
   mouse.y = -9999;
 });
 
+let skipFrame = false;
+
 function frame() {
+  if (isMobile) {
+    skipFrame = !skipFrame;
+    if (skipFrame) { requestAnimationFrame(frame); return; }
+  }
+
   ctx.clearRect(0, 0, W, H);
 
   for (let i = 0; i < NUM; i++) {
     particles[i].update();
-    const d = dist(particles[i], mouse);
-    vis[i] = d < VISIBLE_RADIUS ? 1 - d / VISIBLE_RADIUS : 0;
+    if (isMobile) {
+      vis[i] = 1;
+    } else {
+      const d = dist(particles[i], mouse);
+      vis[i] = d < VISIBLE_RADIUS ? 1 - d / VISIBLE_RADIUS : 0;
+    }
   }
 
   for (let i = 0; i < NUM; i++) {
@@ -557,7 +571,7 @@ function frame() {
     const p = particles[i];
     ctx.beginPath();
     ctx.arc(p.x, p.y, PARTICLE_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0,0,0,${vis[i] + 0.1 > 1 ? 1 : vis[i] + 0.1})`;
+    ctx.fillStyle = isMobile ? 'rgba(0,0,0,0.7)' : `rgba(0,0,0,${vis[i] + 0.1 > 1 ? 1 : vis[i] + 0.1})`;
     ctx.fill();
   }
 
@@ -567,30 +581,31 @@ function frame() {
       if (vis[j] <= 0) continue;
       const d = dist(particles[i], particles[j]);
       if (d < CONNECT_DIST) {
-        drawLine(particles[i].x, particles[i].y, particles[j].x, particles[j].y, (1 - d / CONNECT_DIST) * (vis[i] + vis[j]) / 2 * 0.35);
+        drawLine(particles[i].x, particles[i].y, particles[j].x, particles[j].y, (1 - d / CONNECT_DIST) * (vis[i] + vis[j]) / 2 * LINE_ALPHA);
       }
     }
   }
 
-  let best = [], bestD = [];
-  for (let i = 0; i < NUM; i++) {
-    if (vis[i] <= 0) continue;
-    const d = dist(particles[i], mouse);
-    if (d >= CONNECT_DIST) continue;
-    if (bestD.length < 6) {
-      best.push(i); bestD.push(d);
-    } else {
-      let far = 0;
-      for (let k = 1; k < 6; k++) { if (bestD[k] > bestD[far]) far = k; }
-      if (d < bestD[far]) { best[far] = i; bestD[far] = d; }
+  if (!isMobile) {
+    let best = [], bestD = [];
+    for (let i = 0; i < NUM; i++) {
+      if (vis[i] <= 0) continue;
+      const d = dist(particles[i], mouse);
+      if (d >= CONNECT_DIST) continue;
+      if (bestD.length < 6) {
+        best.push(i); bestD.push(d);
+      } else {
+        let far = 0;
+        for (let k = 1; k < 6; k++) { if (bestD[k] > bestD[far]) far = k; }
+        if (d < bestD[far]) { best[far] = i; bestD[far] = d; }
+      }
     }
-  }
-
-  for (let k = 0; k < best.length; k++) {
-    const idx = best[k], p = particles[idx], d = bestD[k];
-    p.x += (mouse.x - p.x) * 0.06;
-    p.y += (mouse.y - p.y) * 0.06;
-    drawLine(p.x, p.y, mouse.x, mouse.y, vis[idx] * (1 - d / CONNECT_DIST) * 0.7);
+    for (let k = 0; k < best.length; k++) {
+      const idx = best[k], p = particles[idx], d = bestD[k];
+      p.x += (mouse.x - p.x) * 0.06;
+      p.y += (mouse.y - p.y) * 0.06;
+      drawLine(p.x, p.y, mouse.x, mouse.y, vis[idx] * (1 - d / CONNECT_DIST) * 0.7);
+    }
   }
 
   requestAnimationFrame(frame);
