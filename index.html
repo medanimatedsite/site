@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agastya Dulani — Web Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  color: #111;
+  overflow-x: hidden;
+  background: #fff;
+}
+canvas#bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 68px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+nav .logo {
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: -0.5px;
+  color: #111;
+  text-decoration: none;
+}
+nav .logo span { color: #2563eb; }
+nav .nav-links {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+}
+nav .nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+nav .nav-links a:hover { color: #2563eb; }
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  background: #f5f5f5;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 10px;
+  width: 42px;
+  height: 42px;
+}
+.hamburger span {
+  display: block;
+  width: 20px;
+  height: 2.5px;
+  background: #111;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hamburger { display: flex; }
+  nav .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    flex-direction: column;
+    background: #fff;
+    padding: 0;
+    gap: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    align-items: stretch;
+  }
+  nav .nav-links.open {
+    max-height: 300px;
+    padding: 8px 0;
+  }
+  nav .nav-links a {
+    display: block;
+    padding: 14px 24px;
+    font-size: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  nav .nav-links a:last-child { border-bottom: none; }
+}
+
+/* SECTIONS */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 24px;
+}
+.section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #2563eb;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) {
+  section { padding: 64px 20px; }
+  .section-title { font-size: 1.8rem; }
+}
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 68px;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.hero h1 span { color: #2563eb; }
+.hero p {
+  font-size: 1.15rem;
+  color: #555;
+  max-width: 580px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+.btn {
+  display: inline-block;
+  padding: 14px 36px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: 0.25s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+.btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.3); }
+.btn-outline {
+  background: transparent;
+  color: #111;
+  border: 1.5px solid #111;
+  margin-left: 12px;
+}
+.btn-outline:hover { background: #111; color: #fff; }
+@media (max-width: 480px) {
+  .hero .btns { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .btn-outline { margin-left: 0; }
+}
+
+/* SERVICES */
+#services { background: rgba(255,255,255,0.7); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.service-card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 32px 28px;
+  transition: 0.3s;
+}
+.service-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.06); }
+.service-card .icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+}
+.service-card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+.service-card p { font-size: 0.9rem; color: #666; line-height: 1.6; }
+
+/* WORK */
+#work { background: rgba(249,250,251,0.6); }
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.work-card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+.work-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.06); }
+.work-card .thumb {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #2563eb;
+}
+.work-card .info { padding: 24px; }
+.work-card .info h3 { font-size: 1.05rem; margin-bottom: 6px; }
+.work-card .info p { font-size: 0.85rem; color: #666; line-height: 1.5; }
+.work-card .info .tag {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ABOUT */
+#about { background: rgba(255,255,255,0.7); }
+.about-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-top: 20px;
+}
+.about-text p { font-size: 1rem; color: #444; line-height: 1.8; margin-bottom: 16px; }
+.about-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.stat {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+}
+.stat .num { font-size: 2.2rem; font-weight: 800; color: #2563eb; }
+.stat .label { font-size: 0.85rem; color: #666; margin-top: 4px; }
+@media (max-width: 768px) {
+  .about-wrap { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* CONTACT */
+#contact { background: rgba(249,250,251,0.6); }
+.contact-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 20px;
+}
+.contact-info p { color: #555; line-height: 1.7; margin-bottom: 24px; }
+.contact-info .item { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 0.95rem; color: #333; }
+.contact-info .item .emoji { font-size: 1.2rem; width: 28px; text-align: center; }
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  outline: none;
+  transition: 0.2s;
+  margin-bottom: 14px;
+}
+.contact-form input:focus,
+.contact-form textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+.contact-form textarea { height: 120px; resize: vertical; }
+@media (max-width: 768px) {
+  .contact-wrap { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px 24px;
+  font-size: 0.85rem;
+  color: #888;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.5);
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<nav>
+  <a href="#" class="logo">Agastya<span>.</span></a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div>
+    <h1>I build <span>websites</span><br>that grow businesses</h1>
+    <p>Modern, fast, and responsive websites tailored to your brand. From landing pages to full-featured web apps — I bring your vision to life.</p>
+    <div class="btns">
+      <a href="#contact" class="btn btn-primary">Get a Quote</a>
+      <a href="#work" class="btn btn-outline">See My Work</a>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="section-inner">
+    <div class="section-label">What I Do</div>
+    <h2 class="section-title">Services</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon">&#9900;</div>
+        <h3>Custom Websites</h3>
+        <p>Tailor-made sites designed around your goals, audience, and brand identity.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon">&#9881;</div>
+        <h3>Web Apps</h3>
+        <p>Interactive dashboards, tools, and platforms built with modern frameworks.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon">&#9776;</div>
+        <h3>Responsive Design</h3>
+        <p>Flawless experiences across every device — phone, tablet, and desktop.</p>
+      </div>
+      <div class="service-card">
+        <div class="icon">&#9998;</div>
+        <h3>Redesign &amp; Optimize</h3>
+        <p>Revamp existing sites for better performance, SEO, and conversion rates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="section-inner">
+    <div class="section-label">Portfolio</div>
+    <h2 class="section-title">Recent Work</h2>
+    <div class="work-grid">
+      <div class="work-card">
+        <a href="../Creative/AI/Website/ECHO Foundation/index2_1.html" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="thumb" style="background:#1a1a2e; padding:0; overflow:hidden;"><img src="thumb-echo.png" alt="ECHO Foundation screenshot" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="info">
+          <h3>ECHO Foundation</h3>
+          <p>Wildlife rescue &amp; coexistence NGO site with emergency reporting, GPS geolocation, volunteer signup, and donation portal.</p>
+          <span class="tag">NGO</span>
+        </div>
+        </a>
+      </div>
+      <div class="work-card">
+        <a href="../Creative/AI/Website/MedAnimated/index (2).html" target="_blank" style="text-decoration:none;color:inherit;">
+        <div class="thumb" style="background:#0d0d0d; padding:0; overflow:hidden;"><img src="thumb-medanimated.png" alt="MedAnimated screenshot" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+        <div class="info">
+          <h3>MedAnimated</h3>
+          <p>AI video studio site with service pricing, client testimonials, light/dark mode toggle, and integrated order form.</p>
+          <span class="tag">Studio</span>
+        </div>
+        </a>
+      </div>
+      <div class="work-card">
+        <div class="thumb" style="background:#f0f7ff; color:#2563eb; font-size:2.5rem;">&#10010;</div>
+        <div class="info">
+          <h3>Your Project</h3>
+          <p>Have an idea? Let's build something great together. I'm just one message away.</p>
+          <span class="tag">Let's Talk</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label">About Me</div>
+    <h2 class="section-title">Turning ideas into reality</h2>
+    <div class="about-wrap">
+      <div class="about-text">
+        <p>I'm Agastya, a web developer passionate about crafting clean, high-performance websites that help businesses stand out. I work closely with clients to understand their vision and deliver results that exceed expectations.</p>
+        <p>Every project starts with a conversation. I believe good communication is the foundation of great work — and I make sure you're involved every step of the way.</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat"><div class="num">4+</div><div class="label">Years Building</div></div>
+        <div class="stat"><div class="num">30+</div><div class="label">Projects Delivered</div></div>
+        <div class="stat"><div class="num">24h</div><div class="label">Avg. Turnaround</div></div>
+        <div class="stat"><div class="num">100%</div><div class="label">Client Satisfaction</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">Get In Touch</div>
+    <h2 class="section-title">Let's work together</h2>
+    <div class="contact-wrap">
+      <div class="contact-info">
+        <p>Have a project in mind or just want to say hi? Fill out the form and I'll get back to you within 24 hours.</p>
+        <div class="item"><span class="emoji">&#9993;</span> agastya@example.com</div>
+        <div class="item"><span class="emoji">&#9742;</span> +1 (555) 123-4567</div>
+        <div class="item"><span class="emoji">&#9872;</span> Remote / Available worldwide</div>
+      </div>
+      <form class="contact-form">
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <input type="text" placeholder="Project Type">
+        <textarea placeholder="Tell me about your project..." required></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>&copy; 2026 Agastya Dulani. All rights reserved.</footer>
+
+<script>
+// ========== PARTICLE BACKGROUND ==========
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const NUM = 120;
+const CONNECT_DIST = 130;
+const VISIBLE_RADIUS = 300;
+const PARTICLE_RADIUS = 2;
+let mouse = { x: -9999, y: -9999 };
+const vis = new Float64Array(NUM);
+
+class Particle {
+  constructor() {
+    this.ox = Math.random() * W;
+    this.oy = Math.random() * H;
+    this.x = this.ox;
+    this.y = this.oy;
+    this.phX = Math.random() * 2 * Math.PI;
+    this.phY = Math.random() * 2 * Math.PI;
+    this.fqX = 0.005 + Math.random() * 0.01;
+    this.fqY = 0.005 + Math.random() * 0.01;
+    this.amp = 12 + Math.random() * 12;
+    this.t = Math.random() * 1000;
+  }
+  update() {
+    this.t++;
+    this.x = this.ox + Math.sin(this.t * this.fqX + this.phX) * this.amp;
+    this.y = this.oy + Math.sin(this.t * this.fqY + this.phY) * this.amp;
+  }
+}
+
+const particles = Array.from({ length: NUM }, () => new Particle());
+
+function dist(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function drawLine(x1, y1, x2, y2, alpha) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
+}
+
+document.addEventListener('mousemove', (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+document.addEventListener('mouseleave', () => {
+  mouse.x = -9999;
+  mouse.y = -9999;
+});
+
+function frame() {
+  ctx.clearRect(0, 0, W, H);
+
+  for (let i = 0; i < NUM; i++) {
+    particles[i].update();
+    const d = dist(particles[i], mouse);
+    vis[i] = d < VISIBLE_RADIUS ? 1 - d / VISIBLE_RADIUS : 0;
+  }
+
+  for (let i = 0; i < NUM; i++) {
+    if (vis[i] <= 0) continue;
+    const p = particles[i];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, PARTICLE_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${vis[i] + 0.1 > 1 ? 1 : vis[i] + 0.1})`;
+    ctx.fill();
+  }
+
+  for (let i = 0; i < NUM; i++) {
+    if (vis[i] <= 0) continue;
+    for (let j = i + 1; j < NUM; j++) {
+      if (vis[j] <= 0) continue;
+      const d = dist(particles[i], particles[j]);
+      if (d < CONNECT_DIST) {
+        drawLine(particles[i].x, particles[i].y, particles[j].x, particles[j].y, (1 - d / CONNECT_DIST) * (vis[i] + vis[j]) / 2 * 0.35);
+      }
+    }
+  }
+
+  let best = [], bestD = [];
+  for (let i = 0; i < NUM; i++) {
+    if (vis[i] <= 0) continue;
+    const d = dist(particles[i], mouse);
+    if (d >= CONNECT_DIST) continue;
+    if (bestD.length < 6) {
+      best.push(i); bestD.push(d);
+    } else {
+      let far = 0;
+      for (let k = 1; k < 6; k++) { if (bestD[k] > bestD[far]) far = k; }
+      if (d < bestD[far]) { best[far] = i; bestD[far] = d; }
+    }
+  }
+
+  for (let k = 0; k < best.length; k++) {
+    const idx = best[k], p = particles[idx], d = bestD[k];
+    p.x += (mouse.x - p.x) * 0.06;
+    p.y += (mouse.y - p.y) * 0.06;
+    drawLine(p.x, p.y, mouse.x, mouse.y, vis[idx] * (1 - d / CONNECT_DIST) * 0.7);
+  }
+
+  requestAnimationFrame(frame);
+}
+frame();
+
+// ========== HAMBURGER ==========
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  navLinks.classList.toggle('open');
+});
+
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navLinks.classList.remove('open');
+  });
+});
+</script>
+
+</body>
+</html>
